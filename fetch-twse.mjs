@@ -22,8 +22,6 @@ function parseNum(s) {
   return isNaN(n) ? 0 : n;
 }
 
-// T86 columns: 證券代號,證券名稱,外資買進,外資賣出,外資買賣超,外資自營買進,外資自營賣出,
-// 外資自營買賣超,投信買進,投信賣出,投信買賣超,自營商買賣超,...,三大法人買賣超股數(last col)
 function parseT86(t86) {
   return (t86.data || []).map(row => {
     const code = String(row[0]).trim();
@@ -36,8 +34,6 @@ function parseT86(t86) {
   }).filter(r => r.code);
 }
 
-// MI_INDEX columns: 證券代號,證券名稱,成交股數,成交筆數,成交金額,開盤價,最高價,最低價,
-// 收盤價,漲跌(+/-),漲跌價差,...
 function parseMI(mi) {
   return (mi.data || []).map(row => {
     const code = String(row[0]).trim();
@@ -59,8 +55,12 @@ async function fetchJson(url) {
 }
 
 async function main() {
-  const dateArg = process.argv[2]; // optional: node fetch-twse.mjs 20260707
+  const dateArg = process.argv[2];
   const dstr = dateArg || taipeiDateStr();
+
+  fs.mkdirSync('data', { recursive: true });
+  const gitkeepPath = path.join('data', '.gitkeep');
+  if (!fs.existsSync(gitkeepPath)) fs.writeFileSync(gitkeepPath, '');
 
   const t86Url = `https://www.twse.com.tw/rwd/zh/fund/T86?date=${dstr}&selectType=ALL&response=json`;
   const miUrl = `https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=${dstr}&type=ALLBUT0999&response=json`;
@@ -77,7 +77,6 @@ async function main() {
   const vol = parseMI(mi);
   const data = { date: dstr, inst, vol, fetchedAt: new Date().toISOString() };
 
-  fs.mkdirSync('data', { recursive: true });
   fs.writeFileSync(path.join('data', `${dstr}.json`), JSON.stringify(data));
 
   const indexPath = path.join('data', 'index.json');
