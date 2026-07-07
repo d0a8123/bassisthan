@@ -22,7 +22,9 @@ jobs:
 
       - name: Fetch TWSE data
         run: node fetch-twse.mjs
-
+      
+      - name: Fetch market news
+        run: node fetch-news.mjs
       - name: Commit and push if data changed
         run: |
           git config user.name "github-actions[bot]"
