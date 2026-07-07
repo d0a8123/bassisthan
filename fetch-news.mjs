@@ -60,11 +60,13 @@ async function main() {
 
   const dstr = taipeiDateStr();
 
+  // Two feeds: Taiwan-market-specific, and global macro/geopolitics that tends to move markets.
   const [twNews, globalNews] = await Promise.all([
     fetchFeed('台股 OR 台灣加權指數 OR 台積電 OR 外資 買賣超', 'tw'),
     fetchFeed('聯準會 OR Fed 利率 OR 美股 OR 地緣政治 OR 油價 OR 半導體 關稅', 'global')
   ]);
 
+  // Dedupe by link, keep newest 40 total, sorted by pubDate desc.
   const all = [...twNews, ...globalNews];
   const seen = new Set();
   const deduped = all.filter(item => {
